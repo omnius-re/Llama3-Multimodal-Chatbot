@@ -277,9 +277,9 @@ async def yt_factcheck(ctx, url):
             await ctx.send("Error generating fact-check.")
 
 import vertexai
+PROJECT_ID = os.getenv('PROJECT_ID')
+location = os.getenv('location')
 
-PROJECT_ID = "iconic-aloe-431516-n5"
-location = "us-east1" 
 vertexai.init(project=PROJECT_ID, location=location)
 
 from vertexai.preview.generative_models import (
