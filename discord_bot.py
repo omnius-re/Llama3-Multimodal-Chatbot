@@ -1,9 +1,9 @@
-<<<<<<< HEAD
 import os
 import discord
 from discord.ext import commands
 import ollama
 from dotenv import load_dotenv
+import requests
 
 
 from youtube_transcript_api import YouTubeTranscriptApi
@@ -19,6 +19,8 @@ import requests
 import shutil
 
 
+
+
 load_dotenv()
 
 intents = discord.Intents.default()
@@ -26,8 +28,7 @@ intents.message_content = True
 
 bot = commands.Bot(command_prefix="/", intents= intents)
 
-image_directory = 'saved_images'
-os.makedirs(image_directory, exist_ok=True)
+
 
 @bot.event
 async def on_ready():
@@ -275,8 +276,38 @@ async def yt_factcheck(ctx, url):
             print(f"Error summarizing full transcript: {e}")
             await ctx.send("Error generating fact-check.")
 
-@bot.command(name="image")
-async def read_image(ctx):
+import vertexai
+
+PROJECT_ID = "iconic-aloe-431516-n5"
+location = "us-east1" 
+vertexai.init(project=PROJECT_ID, location=location)
+
+from vertexai.preview.generative_models import (
+    GenerationConfig,
+    GenerativeModel,
+    HarmCategory,
+    HarmBlockThreshold,
+    Image,
+    Part
+)
+
+ASTRA_DB_API_ENDPOINT = "https://9141c64f-ac6d-45f6-bb25-60fe2c24d289-us-east1.apps.astra.datastax.com"
+ASTRA_DB_APPLICATION_TOKEN = "AstraCS:iubApUtwvtTJplpdmOFGdmrY:226b4eeb3add62856e6f6d2e8a583d2312fcb74e07a865a9b916340292309c66"
+
+
+os.environ["ASTRA_DB_ENDPOINT"] = ASTRA_DB_API_ENDPOINT
+os.environ["ASTRA_DB_TOKEN"] = ASTRA_DB_APPLICATION_TOKEN
+
+
+from langchain_google_vertexai import ChatVertexAI
+from langchain.schema.messages import HumanMessage
+
+image_directory = 'saved_images'
+os.makedirs(image_directory, exist_ok=True)
+
+
+@bot.command(name="im")
+async def read_image(ctx, *, text_input: str = ""):
     try:
         # Retrieve the URL of the first attachment
         url = ctx.message.attachments[0].url
@@ -286,26 +317,25 @@ async def read_image(ctx):
         await ctx.send("No image detected.")
         return  # Exit the function if no attachment is found
 
-    # Set the OpenAI API key
-    openai.api_key = os.getenv('CLIENT_ID')  # Ensure you have set this environment variable
+    chat = ChatVertexAI(model_name="gemini-1.0-pro-vision")
+
+    image_message = {
+        "type": "image_url",
+        "image_url": {"url": url},
+    }
+    text_message = {
+        "type": "text",
+        "text": f"What is this image? Return any texts on that image. {text_input} ",
+    }
 
     try:
-        # Call OpenAI API
-        response = openai.chat.completions.create(
-            model='google/gemini-1.0-pro-vision',
-            messages=[
-                {
-                    'role': 'user',
-                    'content': [
-                        { 'type': 'text', 'text': 'Describe the following image:' },
-                        { 'type': 'image_url', 'image_url': url }
-                    ]
-                }
-            ])
+        message = HumanMessage(content=[text_message, image_message])
+        response = chat([message])
+        
+        # Extract the 'content' from the response
+        content = response.content
 
-        # Extract the response content
-        description = response.choices[0].message['content']
-        await ctx.send(description)
+        await ctx.send(content)
 
     except Exception as e:
         print(f"Error: {e}")
@@ -320,164 +350,3 @@ async def read_image(ctx):
 
 bot.run(os.getenv('DISCORD_BOT_TOKEN'))
 
-=======
-import os
-import discord
-from discord.ext import commands
-import ollama
-from dotenv import load_dotenv
-
-from youtube_transcript_api import YouTubeTranscriptApi
-import tiktoken
-
-
-load_dotenv()
-
-intents = discord.Intents.default()
-intents.message_content = True
-
-bot = commands.Bot(command_prefix="/", intents= intents)
-
-@bot.event
-async def on_ready():
-    print(f"Bot is ready as {bot.user.name}")
-
-@bot.command(name="hello")
-async def hello(ctx):
-    await ctx.send("Hello son :)") 
-
-@bot.command(name="ask")
-async def ask(ctx, *, message):
-    print(message)
-    print("=======")
-    response = ollama.chat(model='llama3', messages=[
-        {
-            'role': 'system',
-            'content' : 'You are Lebron James. You are a helpful and mature chatbot who responds to messages, sometimes using the catchphrase: I am a father before anything! Do not exceed 100 words in text generation.'
-        },
-        {
-            'role': 'user',
-            'content': message,
-        },
-    ])
-    print(response['message']['content'])
-    await ctx.send(response['message']['content'])
-
-@bot.command(name="summarize")
-async def summarize(ctx):
-
-    msgs = [message.content async for message in ctx.channel.history(limit=10)]
-
-    summarize_prompt = f"""
-        Summarize the following messages delimited by 3 backticks:
-        ```
-        {msgs}
-        ```
-        """
-    
-    response = ollama.chat(model='llama3', messages=[
-        {
-            'role': 'user',
-            'content': 'You are Lebron James. You are a helpful chatbot that summarizes the provided messages in bullet points concisely. Do not exceed 100 words in text generation.'
-        }
-    ])
-    print(response['message']['content'])
-    await ctx.send(response['message']['content'])
-
-@bot.command(name="tldr")
-async def yt_tldr(ctx, url):
-    await ctx.send("Fetching and summarizing the YouTube video...")
-
-    # Validate the URL format
-    if "v=" not in url:
-        await ctx.send("Invalid YouTube URL format. Please provide a valid video URL.")
-        return
-
-    try:
-        video_id = url.split("v=")[1].split("&")[0]  # Handle cases where additional parameters are present
-        transcript_list = YouTubeTranscriptApi.get_transcript(video_id)
-    except Exception as e:
-        await ctx.send(f"Error fetching transcript: {e}")
-        return
-
-    full_transcript = " ".join([item['text'] for item in transcript_list])
-
-    encoding = tiktoken.encoding_for_model("gpt-3.5-turbo")
-    tokens = encoding.encode(full_transcript)
-    num_tokens = len(tokens)
-
-    print(num_tokens)
-    chunk_size = 7000
-
-    if num_tokens > chunk_size:
-        num_chunks = (num_tokens + chunk_size - 1) // chunk_size
-        chunks = [full_transcript[i * chunk_size : (i + 1) * chunk_size] for i in range(num_chunks)]
-
-        async def process_chunk(chunk, chunk_num):
-            await ctx.send(f"Extracting summary of chunk {chunk_num} of {num_chunks}...")
-
-            try:
-                response = ollama.chat(model='llama3', messages=[
-                    {
-                        'role': 'user',
-                        'content': '''You are a helpful assistant. You are a helpful chatbot that provides a concise 
-                        summary of the Youtube video in bullet points. Do not exceed 100 words in text generation.'''
-                    },
-                    {
-                        'role': 'user',
-                        'content': f'''
-                        Please provide a summary for the following chunk of the YouTube video transcript:
-                        {chunk}
-                        ''',
-                    },
-                ])
-                print(f"Response for chunk {chunk_num}: {response}")
-
-                summary = response.get('message', {}).get('content', '').strip()
-                if not summary:
-                    summary = "No summary available for this chunk."
-
-                return summary
-            except Exception as e:
-                print(f"Error processing chunk {chunk_num}: {e}")
-                return "Error generating summary."
-
-        for i, chunk in enumerate(chunks, start=1):
-            try:
-                summary = await process_chunk(chunk, i)
-                await ctx.send(summary)
-            except Exception as e:
-                print(f"Error sending summary for chunk {i}: {e}")
-                await ctx.send("Error sending summary.")
-    else:
-        try:
-            response = ollama.chat(model='llama3', messages=[
-                {
-                    'role': 'user',
-                    'content': '''You are a helpful assistant. You are a helpful chatbot that provides a concise 
-                    summary of the Youtube video in bullet points. Do not exceed 100 words in text generation.'''
-                },
-                {
-                    'role': 'user',
-                    'content': f'''
-                    Please provide a summary for the following chunk of the YouTube video transcript:
-                    {full_transcript}
-                    ''',
-                },
-            ])
-            print(f"Response for full transcript: {response}")
-
-            summary = response.get('message', {}).get('content', '').strip()
-            if not summary:
-                summary = "No summary available for this video."
-
-            await ctx.send(summary)
-        except Exception as e:
-            print(f"Error summarizing full transcript: {e}")
-            await ctx.send("Error generating summary.")
-
-
-
-bot.run(os.getenv("DISCORD_BOT_TOKEN"))
-
->>>>>>> origin/main
