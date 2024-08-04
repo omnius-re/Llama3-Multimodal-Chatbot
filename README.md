@@ -48,14 +48,14 @@ This Discord bot provides a variety of features, including chat interactions, su
     CLIENT_ID: Your OpenAI API key.
 
 ## Dependencies
-    `discord.py`: A Python wrapper for the Discord API.
-    `ollama`: A library for interacting with Ollama's chat models.
-    `python-dotenv`: A library to read key-value pairs from a .env file.
-    `youtube-transcript-api`: A library to fetch YouTube video transcripts.
-    `tiktoken`: A library to encode text into tokens.
-    `openai`: A library to interact with OpenAI's API.
+- `discord.py`: A Python wrapper for the Discord API.
+- `ollama`: A library for interacting with Ollama's chat models.
+- `python-dotenv`: A library to read key-value pairs from a .env file.
+- `youtube-transcript-api`: A library to fetch YouTube video transcripts.
+- `tiktoken`: A library to encode text into tokens.
+- `openai`: A library to interact with OpenAI's API.
 
 ## Troubleshooting
-    Ensure all environment variables are correctly set.
-    Verify that the required dependencies are installed.
-    Check the bot's permissions on Discord to ensure it can read messages and send responses.
+- Ensure all environment variables are correctly set.
+- Verify that the required dependencies are installed.
+- Check the bot's permissions on Discord to ensure it can read messages and send responses.
