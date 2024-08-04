@@ -291,12 +291,6 @@ from vertexai.preview.generative_models import (
     Part
 )
 
-ASTRA_DB_API_ENDPOINT = "https://9141c64f-ac6d-45f6-bb25-60fe2c24d289-us-east1.apps.astra.datastax.com"
-ASTRA_DB_APPLICATION_TOKEN = "AstraCS:iubApUtwvtTJplpdmOFGdmrY:226b4eeb3add62856e6f6d2e8a583d2312fcb74e07a865a9b916340292309c66"
-
-
-os.environ["ASTRA_DB_ENDPOINT"] = ASTRA_DB_API_ENDPOINT
-os.environ["ASTRA_DB_TOKEN"] = ASTRA_DB_APPLICATION_TOKEN
 
 
 from langchain_google_vertexai import ChatVertexAI
