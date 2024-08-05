@@ -335,8 +335,32 @@ async def read_image(ctx, *, text_input: str = ""):
         print(f"Error: {e}")
         await ctx.send("An error occurred while processing the image.")
 
+import fal_client
+
+@bot.command(name="cook")
+async def make_image(ctx, *, message):
+    try:
+        handler = fal_client.submit(
+            "fal-ai/flux/schnell",
+            arguments={
+                "prompt": message,
+            },
+        )
+
+        result = handler.get()
+
+        # Extract the image URL from the result
+        image_url = result['images'][0]['url']
+        print(image_url)
+        await ctx.send(image_url)
+
+    except Exception as e:
+        print(f"Error: {e}")
+        await ctx.send("An error occurred while generating the image.")
+
     
 
+    
 
 
 

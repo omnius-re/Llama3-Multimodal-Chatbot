@@ -9,7 +9,8 @@ This Discord bot provides a variety of features, including chat interactions, su
 - **Summarize Command**: Summarizes the last 10 messages in the channel.
 - **TL;DR Command**: Fetches and summarizes YouTube video transcripts.
 - **Fact-Check Command**: Fetches and fact-checks YouTube video transcripts.
-- **Image Command**: Describes an image using OpenAI's API.
+- **Image Command**: Responds to any image-related queries.
+- **Image Generation**: Generates images from text captions.
 
 ## Setup
 
@@ -41,11 +42,15 @@ This Discord bot provides a variety of features, including chat interactions, su
 
 /factcheck <url>: Fetches and fact-checks the transcript of a YouTube video.
 
-/image: Provides a description of the attached image using OpenAI's API.
+/im: Provides a description of the attached image using OpenAI's API.
+
+/cook: Text to image generation with highly accurate results 
 
 ## Environment Variables
     DISCORD_BOT_TOKEN: The token for your Discord bot.
     CLIENT_ID: Your OpenAI API key.
+    PROJECT_ID: Your Google Cloud Project API Key
+    FAL_KEY: Your image generation API key
 
 ## Dependencies
 - `discord.py`: A Python wrapper for the Discord API.
@@ -54,6 +59,8 @@ This Discord bot provides a variety of features, including chat interactions, su
 - `youtube-transcript-api`: A library to fetch YouTube video transcripts.
 - `tiktoken`: A library to encode text into tokens.
 - `openai`: A library to interact with OpenAI's API.
+- `vertexai`: A library for image recognition using Google Pro Vision
+- `fal_client`: A library to generate images from FLUX model
 
 ## Troubleshooting
 - Ensure all environment variables are correctly set.
