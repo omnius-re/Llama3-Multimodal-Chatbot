@@ -1,0 +1,154 @@
+
+
+What is High Level Design? – Learn System Design
+HLD plays a significant role in developing scalable applications, as well as proper planning and organization. High-level design serves as the blueprint for the system's architecture, providing a comprehensive view of how components interact and function together. This high-level perspective is important for guiding the detailed implementation phase and ensures scalability, maintainability, and performance in large-scale applications.
+
+What is High Level Design
+What is High-Level Design
+What is High-Level Design?
+High-level design is an initial step in the development of applications where the overall structure of a system is planned. High-level design focuses mainly on how different components of the system work together without getting to know about internal coding and implementation. This helps everyone involved in the project to understand the goals and ensures good communication during development.
+
+Understanding high-level design is one of the crucial  part for developers, architects, and project managers because it allows them to make sure that all stakeholders are aligned with the project objectives. That's why it is also known as macro-level design.
+
+Components of High-Level Design
+Components of High-Level Design
+Components of High-Level Design
+Understanding the components of high-level design is very important for creating effective systems that meet user needs and technical requirements. Below are the main components of high-level design:
+
+System Architecture: System architecture is an overview of the entire system that represents the structure and the relationships between various components. It helps to visually represent how different parts interact and function.
+Modules and Components: High-level design breaks down the systems into modules or components, each with specific roles and responsibilities, and has a distinct function that contributes to the entire system, helping in developing an efficient system.
+Data Flow Diagrams (DFDs): Data Flow Diagrams demonstrate the data movement within the system. They help to understand how information is processed and pass from one end to another.
+Interface Design: It includes the design of application programming interfaces (APIs) for system integration and user interfaces (UIs) for user interaction, ensuring seamless functionality and communication between components.
+Technology Stack: The technology stack is various technologies and tools that will be used in the development of the system. This includes programming languages, frameworks, and databases.
+Deployment Architecture: It includes how the system will be hosted and accessed. It includes server configurations, cloud infrastructure, and network considerations.
+What is High-Level Design Document?
+The HLD document consists of data flows, flowcharts, and data structures to help developers understand and implement how the current system is being designed intentionally to function. This document is responsible for explaining the connections between system components and operations, which depict the logic. The architecture design needed (for the system's functionality and flow) for each and every module of the system as per the functional requirements.
+
+Purpose and Characteristics of High-Level Design
+The purpose of this High-Level Design (HLD) is to add the necessary detailed description to represent a suitable model. This is designed to help with operational requirements and will help to understand how the modules interact. Basically, HLD is a technical representation of functional requirements and the flow of information across components.Characteristics of high-level design include
+
+A diagram representing each design aspect is included in the HLD (which is based on business requirements and anticipated results).
+Description of hardware, software interfaces, and also user interfaces.
+The workflow of the user's typical process is detailed, along with performance specifications.
+How HLD is Different from LLD
+High-level design, or HLD, is a general system design where we do tradeoffs between different frameworks, components, and different databases, and we choose the best considering what the business needs and how the system should work, both in terms of functional and non-functional aspects.
+
+Whereas LLD (low-level design) translates the HLD into smaller and more specific details, it includes class diagrams, methods, data structures, and algorithms, focusing on how each part will be implemented.
+
+Further Read: Differences between High-Level Design (HLD) and Low-Level Design (LLD)
+
+After having an adequate understanding of HLD and how it is different from LLD. Let us now discuss the HLD roadmap, which is shown below as an infographic:
+
+How to Design Scalable High-Level Design (HLD) Systems
+Now, in order to design any high-level system, certain terms are listed in a sequential manner so as to connect the dots in order to understand. Roadmaps are very important for working professionals because these help us to get a complete, binding understanding of how services in real-time are getting scaled at a high level.
+
+How To Design Scalable High-level Design (HLD) Systems
+How To Design Scalable High-level Design (HLD) Systems
+1. Capacity Estimation
+Capacity estimation in system design involves predicting the resources (such as processing power, memory, and bandwidth) required to meet the expected workload. It ensures that a system can handle current and future demands efficiently, helping in the proper allocation of resources and preventing performance bottlenecks.
+
+For example:
+
+Twitter, which is recently in newsfeeds these days, here at high-level designing, we need to make sure tweets of popular influencers are reaching out to millions of people, so how do we need to scale our system so service should not be hampered? 
+
+We have also shown below the characteristic behavior of a server, which is measured across throughput and latency within the system.
+
+Comparison of Throughput and Latency with Concurrency : Behavior Of A Server
+Comparison of Throughput and Latency with Concurrency : Behavior Of A Server
+2. HTTP and HTTPS and Their Methods
+HTTP (HyperText Transfer Protocol) is used to transfer the data over the web, which enables the communication between clients and servers that helps users to request resources like HTML pages, messages, videos, or images, while HTTPS (HyperText Transfer Protocol Secure) is an extension of HTTP that adds an extra layer of security through SSL/TLS encryption. Methods of HTTP include GET, PUT, and POST.
+
+Tip: These are also important as per interview perspective as constraint bounds in interviews in API over when to use what is very important. 
+
+
+Tip: There are 2 ways to send data from server to client:
+
+Using Websockets
+Using Polling
+3. Web Sockets
+There are two ways to send data from server to clients, which are websockets and polling. In a client-server architecture, we are sending a request to the server, and the server sends it back, and so in this way communication takes place. But in designing the system, the biggest problem we face is whether we can implement the client-server model or peer-to-peer model.
+
+Here WebSockets play a crucial role in solving problems and enabling us to have real-time communication.
+WebSocket is a full-duplex protocol as it allows the application to send and receive data at the same time.
+They are more or less used in every system to be designed because we cannot let our system wait for a response.
+They are very useful in real-time web applications, gaming applications, and chat applications.
+WebSocket-Connection
+WebSocket Connection
+4. Polling
+Another way of sending and receiving data from a server, just like we do with the above case of web sockets, is polling. There are mainly 2 types of polling:
+
+In short polling, the client sends a request to the server, and the server immediately sends data at fixed intervals, whether the data is updated or not.
+In long polling, the server waits for the client's request to respond and responds only and only if some new data is available or if some data is being updated.
+Tip: Long polling is preferredover short polling because lesser number of requests are sent in a system.
+
+Short-poling-vs-long-polling
+Short Polling Vs Long Polling
+5. Server-Sent Events(SSE)
+It is purposely built as one-way communication from servers to clients in specific design systems. SSE is a technology that helps to push real-time updates from the server to the clients over HTTP connections. SSE enables the server to send data automatically as it becomes available.Examples of SSE include real-time streaming.
+
+Server-Sent Events(SSE)
+Server-Sent Events(SSE)
+6. Rate limiting
+A rate limiter restricts the number of events that can be done in a timeframe by restricting the number of requests a sender can send in a given period of time. Here, once the threshold limit is reached, it now further blocks the incoming requests, as can be seen below in the media as follows:
+
+Rate limiting
+Rate limiting
+7. Resiliency
+No matter how great a system we design, there is always a chance of faults and failure, which could be because of hardware issues or software issues (such as running low on memory), or there can be some human error. In such cases we need to provide resiliency through replication, redundancy, and availability.
+
+Note: System design interviews start with open-ended designing of a specific system, which later is bounded with constraints at multiple levels. In order to clear dealing with these bounds, in layman's language, it is known as resiliency via implementing common tradeoffs in the system. Hence, providing resiliency is very crucial in designing complex system designs and also in clearing interviews. 
+
+8. Paging
+Paging in high-level design (HLD) refers to the method of dividing large datasets or content into smaller, manageable pages. This approach improves user experience by allowing users to load data incrementally, reducing initial load times and enhancing performance.
+
+Paging
+Pagin
+9. Logging
+A log file records details of events occurring in a software application. The details may consist of microservices, transactions, service actions, or anything helpful to debug the flow of an event in the system. Logging is crucial to monitor the application's flow. This can also be useful for tracking the health and performance of a distributed system, as well as for debugging issues that may arise. There are several approaches to implementing distributed logging, including:
+
+Using a centralized logging service
+Using a distributed logging system
+Using a cloud-based logging service
+Roadmap to Learn HLD
+1. Basics of HLD
+Difference between HLD and LLD
+What is the goal of High-Level Design(HLD)?
+2. Core Components of HLD
+Load Balancer
+Content Delivery Network(CDN)
+Caching in System Design
+What is API Gateway
+Message Queues
+Consistent Hashing
+Communication Protocols
+Network Protocols and Proxies
+3. Design Principles for HLD
+Scalability and How to achieve it
+Availability in System Design
+Consistency in System Design
+Reliability in System Design
+Fault Tolerance in System Design
+CAP Theorem
+Performance Optimization Techniques for System Design
+How to Draw High Level Design Diagram?
+4. Types of HLD Diagrams
+Component Based Diagram
+Sequence Diagrams
+What is DFD(Data Flow Diagram)?
+Deployment Diagram
+5. Architectures and Patterns
+Monolithic Architecture
+Microservices Architecture
+Event-Driven Architecture
+Client-Server Architecture
+Peer-to-Peer (P2P) Architecture
+Serverless Architecture
+Circuit Breaker Pattern
+Event Sourcing Pattern
+CQRS Design Pattern
+6. Interview Preparation for HLD
+How to Crack System Design Interview Round?
+Top High-Level Design(HLD) Interview Questions 2024
+
+High-Level Design (HLD) is crucial for developing scalable applications, serving as the architectural blueprint that guides the system's overall structure and component interactions. It focuses on the macro-level view, ensuring alignment among stakeholders and facilitating effective communication. The various key components include system architecture, modules, data flow diagrams, interface design, technology stack, and deployment architecture. HLD ensures scalability, maintainability, and performance, providing a comprehensive view that aids in the detailed implementation phase which ultimately leading to robust and efficient systems.
+

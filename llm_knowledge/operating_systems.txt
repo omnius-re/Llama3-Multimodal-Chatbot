@@ -1,0 +1,103 @@
+
+Introduction to Operating System
+An operating system acts as an intermediary between the user of a computer and computer hardware. In short its an interface between computer hardware and user.
+
+The purpose of an operating system is to provide an environment in which a user can execute programs conveniently and efficiently.
+An operating system is software that manages computer hardware and software. The hardware must provide appropriate mechanisms to ensure the correct operation of the computer system and to prevent user programs from interfering with the proper operation of the system. 
+The operating system (OS) is a program that runs at all times on a computer. All other programs, including application programs, run on top of the operating system.
+It does assignment of resources like memory, processors and input / output devices to different processes that need the resources. The assignment of resources has to be fair and secure.
+Functionalities of Operating System
+Resource Management: When multiple processes run on the system and need different resources like memory, input/output devices, the OS works as Resource Manager, Its responsibility is to provide hardware to the user. It decreases the load in the system.
+Process Management: It includes various tasks like scheduling and synchronization of processes. Process scheduling is done with the help of CPU Scheduling algorithms . Process Synchronization is mainly required because processes need to communicate with each other. When processes communicate different problems arise like two processes can update the same memory location in incorrect order.
+Storage Management: The file system mechanism used for the management of the secondary storage like Hard Disk. NIFS, CIFS, CFS, NFS, etc. are some file systems that are used by operating systems to manage the storage. All the data is stored in various tracks of Hard disks that are all managed by the storage manager.
+Memory Management: Refers to the management of primary memory, mainly allocation and de-allocation of memory to processes. The operating system has to keep track of how much memory has been used and by which process. It has to decide which process needs memory space and how much.
+Security/Privacy Management: Privacy is also provided by the Operating system using passwords so that unauthorized applications can't access programs or data. For example, Windows uses Kerberos authentication to prevent unauthorized access to data.
+Please refer Functions of OS for more details.
+
+The Operating System as a User Interface:
+User (Interacts with the system)
+System and application programs (Software tools for the user)
+Operating system (Manages hardware and software resources)
+Hardware (Physical computing devices)
+Every general-purpose computer consists of hardware, an operating system(s), system programs and application programs. The hardware consists of memory, CPU, ALU, I/O devices, peripheral devices and storage devices. The system program consists of compilers, loaders, editors, OS, etc.
+
+Conceptual View of Computer System
+Conceptual View of Computer System
+Every computer must have an operating system to run other programs. The operating system coordinates the use of the hardware among the various system programs and application programs for various users. It simply provides an environment within which other programs can do useful work.
+
+An OS is a package of some programs that runs on a computer machine, allowing it to perform efficiently. It manages the simple tasks of recognizing input from the keyboard, managing files and directories on disk, displaying output on the screen and controlling peripheral devices.
+
+Goals of Operating System
+Primary Goals
+The primary goals of an operating system (OS) are to provide a easy to use and convenient environment for executing user programs.
+
+User Convenience : It should be easy to use, providing a user-friendly interface and making it simple to interact with the system.
+Program Execution: It facilitates the execution of user programs, providing the necessary environment and services for them to run.
+Resource Management: The OS manages and allocates the computer's resources, including the CPU, memory, disk storage, and input/output devices, to ensure fair utilization.
+Security: The OS protects the system and user data from unauthorized access, ensuring the confidentiality, integrity, and availability of information.
+Secondary Goals
+Efficient Resource Utilization: It should aim to maximize the performance and utilization of computer resources like CPU, Memory and IO devices, ensuring that the system runs smoothly and efficiently.
+Reliability: It should be robust and reliable, able to handle errors and exceptions gracefully, ensuring that the system continues to operate smoothly. It should be modular in design and easy to debug.
+List of Common Operating Systems
+There are multiple types of operating systems each having its own unique features:
+
+Windows OS
+Developer : Microsoft
+Key Features : User-friendly interface, software compatibility, hardware support, Strong gaming support.
+Advantages : Easy to use for most users, Broad support from third-party applications ,Frequent updates and support.
+Typical Use Cases : Personal computing, Business environment, Gaming.
+macOS
+Developer : Apple.
+Key Features : Sleek, intuitive user interface, Strong integration with other Apple products, Robust security features, High performance and stability.
+Advantages : Optimized for Apple hardware, Seamless experience across Apple ecosystem, Superior graphics and multimedia capabilities.
+Typical Use Cases : Creative industries (design, video editing, music production), Personal computing, Professional environments.
+Linux
+Developer : Community-driven (various distributions).
+Key Features : Open-source and highly customizable, Robust security and stability, Lightweight and can run on older hardware, Large selection of distributions (e.g., Ubuntu, Fedora, Debian).
+Advantages : Free to use and distribute, Strong community support, Suitable for servers and development environments.
+Typical Use Cases : Servers and data centers, Development and programming, Personal computing for tech enthusiasts.
+Unix
+Developer: Originally AT&T Bell Labs, various commercial and open-source versions available
+Key Features: Multiuser and multitasking capabilities, Strong security and stability, Powerful command-line interface, Portability across different hardware platforms
+Advantages: Reliable and robust performance, Suitable for high-performance computing and servers, Extensive support for networking
+Typical Use Cases: Servers and workstations, Development environments, Research and academic settings
+History of Operating System
+The operating system has been evolving through the years. The following table shows the history of OS.
+
+Era	Key Developments	Examples
+1956	The first Operating System was GM-NAA I/O in 1956 by General Motors.	GM-NAA I/O (1956)
+1960s	IBM developed a time sharing system TSS/360	OS/360, DOS/360 and TSS/360
+1970s	Unix popularized simplicity and multitasking; rise of personal computers with basic OSs.	Unix (1971), CP/M (1974)
+1980s	GUI-based OSs gained traction; networking features became standard.	Apple Macintosh (1984), Windows (1985)
+1990s	Open-source Linux emerged; GUIs in Windows and Mac OS improved.	Linux (1991), Windows 95 (1995)
+2000s-Present	Mobile OSs dominated; cloud and virtualization technologies advanced computing.	iOS (2007), Android (2008)
+Please refer History of Operating Systems for more details.
+
+Characteristics of Operating Systems
+Let us now discuss some of the important characteristic features of operating systems:
+
+Device Management: The operating system keeps track of all the devices. So, it is also called the Input/Output controller that decides which process gets the device, when and for how much time.
+File Management: It allocates and de-allocates the resources and also decides who gets the resource.
+Job Accounting: It keeps track of time and resources used by various jobs or users.
+Error-detecting Aids: These contain methods that include the production of dumps, traces, error messages and other debugging and error-detecting methods.
+Memory Management: It is responsible for managing the primary memory of a computer, including what part of it are in use by whom also check how much amount free or used and allocate process
+Processor Management: It allocates the processor to a process and then de-allocates the processor when it is no longer required or the job is done.
+Control on System Performance: It records the delays between the request for a service and the system.
+Security: It prevents unauthorized access to programs and data using passwords or some kind of protection technique.
+Convenience: An OS makes a computer more convenient to use.
+Efficiency: An OS allows the computer system resources to be used efficiently.
+Ability to Evolve: An OS should be constructed in such a way as to permit the effective development, testing and introduction of new system functions at the same time without interfering with service.
+Throughput: An OS should be constructed so that It can give maximum throughput (Number of tasks per unit time).
+Layered Design of Operating System
+OS
+Fig. Layered OS
+The extended machine provides operations like context save, dispatching, swapping and I/O initiation. The operating system layer is located on top of the extended machine layer. This arrangement considerably simplifies the coding and testing of OS modules by separating the algorithm of a function from the implementation of its primitive operations. It is now easier to test, debug and modify an OS module than in a monolithic OS. We say that the lower layer provides an abstraction that is the extended machine. We call the operating system layer the top layer of the OS.
+
+Components of an Operating Systems
+There are two basic components of an Operating System.
+
+Shell : It is the outermost layer of the Operating System and it handles the interaction with the user. It interprets input for the OS and handles the output from the OS.
+Kernel : It is the core component of operating system. The kernel is the primary interface between the Operating system and Hardware.
+Recommended Next Reads:
+Kernel in OS
+32 vs 64-bit Operating Systems

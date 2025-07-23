@@ -1,0 +1,126 @@
+Fine-tuning involves training the pre-trained base model on specific tasks or datasets relevant 
+to the desired application. This process allows the model to adapt, becoming more accurate and 
+contextually relevant for the intended use case.
+ On the other hand, by providing additional input or context at inference time, LLMs can gen
+erate text tailored to a particular task or style. Prompt engineering is significant in unlocking 
+LLM reasoning capabilities, and prompt techniques form a valuable toolkit for researchers and 
+practitioners working with LLMs. We’ll discuss and implement advanced prompt engineering 
+strategies like few-shot learning, tree-of-thought, and self-consistency.
+
+Pre-training an LLM on diverse data to learn patterns of language results in a base model that 
+has a broad understanding of diverse topics. While base models such as GPT-4 can generate 
+impressive text on a wide range of topics, conditioning them can enhance their capabilities in 
+terms of task relevance, specificity, and coherence, and can guide the model’s behavior to be in 
+line with what is considered ethical and appropriate. In this chapter, we’ll focus on fine-tuning 
+and prompt techniques as two methods of conditioning.
+
+Conditioning techniques enable LLMs to comprehend and execute complex instructions, deliv
+ering content that closely matches our expectations. This ranges from off-the-cuff interactions 
+to systematic training that orients a model’s behavior toward reliable performance in specialist 
+domains, like legal consultation or technical documentation. Furthermore, part of conditioning 
+includes implementing safeguards to avert the production of malicious or harmful content, such 
+as incorporating filters or training the model to avoid certain types of problematic outputs, thereby 
+better aligning it with desired ethical standards.
+
+ In the media, there is substantial coverage of AI-related breakthroughs and their potential impli
+cations. These range from advancements in Natural Language Processing (NLP) and computer 
+vision to the development of sophisticated language models like GPT-4. Particularly, generative 
+models have received a lot of attention due to their ability to generate text, images, and other 
+creative content that is often indistinguishable from human-generated content. These same 
+models also provide wide functionality including semantic search, content manipulation, and 
+classification. This allows cost savings with automation and allows humans to leverage their 
+creativity to an unprecedented level.
+
+ Benchmarks capturing task performance in different domains have been major drivers of the de
+velopment of these models. The following graph, inspired by a blog post titled GPT-4 Predictions 
+by Stephen McAleese on LessWrong, shows the improvements of LLMs in the Massive Multitask 
+Language Understanding (MMLU) benchmark, which was designed to quantify knowledge and 
+problem-solving ability in elementary mathematics, US history, computer science, law, and more
+
+Generative Pre-trained Transformer (GPT) models, like OpenAI’s GPT-4, are prime examples of 
+AI advancements in the sphere of LLMs. ChatGPT has been widely adopted by the general pub
+lic, showing greatly improved chatbot capabilities enabled by being much bigger than previous 
+models. These AI-based chatbots can generate human-like responses as real-time feedback to 
+customers and can be applied to a wide range of use cases, from software development to writing 
+poetry and business communications.
+
+It’s worth distinguishing more clearly between the terms generative model, artificial intelligence, 
+machine learning, deep learning, and language model:
+ • Artificial Intelligence (AI) is a broad field of computer science focused on creating intel
+ligent agents that can reason, learn, and act autonomously.
+ • Machine Learning (ML) is a subset of AI focused on developing algorithms that can 
+learn from data.
+ • Deep Learning (DL) uses deep neural networks, which have many layers, as a mechanism 
+for ML algorithms to learn complex patterns from data.
+ • Generative Models are a type of ML model that can generate new data based on patterns 
+learned from input data.
+ • Language Models (LMs) are statistical models used to predict words in a sequence of 
+natural language. Some language models utilize deep learning and are trained on massive 
+datasets, becoming large language models (LLMs).
+
+ LLMs are deep neural networks adept at understanding and generating human language. The 
+current generation of LLMs such as ChatGPT are deep neural network architectures that utilize 
+the transformer model and undergo pre-training using unsupervised learning on extensive text 
+data, enabling the model to learn language patterns and structures. Models have evolved rapidly, 
+enabling the creation of versatile foundational AI models suitable for a wide range of downstream 
+tasks and modalities, ultimately driving innovation across various applications and industries.
+ The notable strength of the latest generation of LLMs as conversational interfaces (chatbots) lies 
+in their ability to generate coherent and contextually appropriate responses, even in open-ended 
+conversations. By generating the next word based on the preceding words repeatedly, the model 
+produces fluent and coherent text often indistinguishable from text produced by humans. However, 
+ChatGPT has been observed to “sometimes write plausible sounding but incorrect or nonsensical 
+answers,” as expressed in a disclaimer by OpenAI. This is referred to as a hallucination and is just 
+one of the concerns around LLMs.
+ A transformer is a DL architecture, first introduced in 2017 by researchers at Google and the 
+University of Toronto (in an article called Attention Is All You Need; Vaswani and colleagues), that 
+comprises self-attention and feed-forward neural networks, allowing it to effectively capture 
+the word relationships in a sentence. The attention mechanism enables the model to focus on 
+various parts of the input sequence.
+ Generative Pre-Trained Transformers (GPTs), on the other hand, were introduced by research
+ers at OpenAI in 2018 together with the first of their eponymous GPT models, GPT-1 (Improving 
+Language Understanding by Generative Pre-Training; Radford and others). The pre-training process 
+involves predicting the next word in a text sequence, enhancing the model’s grasp of language 
+as measured in the quality of the output. Following pre-training, the model can be fine-tuned 
+for specific language processing tasks like sentiment analysis, language translation, or chat. This 
+combination of unsupervised and supervised learning enables GPT models to perform better 
+across a range of NLP tasks and reduces the challenges associated with training LLMs.
+
+Pre-training
+ The transformer is trained in two phases using a combination of unsupervised pre-training and 
+discriminative task-specific fine-tuning. The goal during pre-training is to learn a general-purpose 
+representation that transfers to a wide range of tasks.
+ The unsupervised pre-training can follow different objectives. In Masked Language Modeling 
+(MLM), introduced in BERT: Pre-training of Deep Bidirectional Transformers for Language Under
+standing by Devlin and others (2019), the input is masked out, and the model attempts to predict 
+the missing tokens based on the context provided by the non-masked portion. For example, if 
+the input sentence is “The cat [MASK] over the wall,” the model would ideally learn to predict 
+“jumped” for the mask.
+ In this case, the training objective minimizes the differences between predictions and the masked 
+tokens according to a loss function. Parameters in the models are then iteratively updated ac
+cording to these comparisons.
+ Negative Log-Likelihood (NLL) and Perplexity (PPL) are important metrics used in training and 
+evaluating language models. NLL is a loss function used in ML algorithms, aimed at maximizing 
+the probability of correct predictions. A lower NLL indicates that the network has successfully 
+learned patterns from the training set, so it will accurately predict the labels of the training sam
+ples. It’s important to mention that NLL is a value constrained within a positive interval.
+ PPL, on the other hand, is an exponentiation of NLL, providing a more intuitive way to understand 
+the model’s performance. Smaller PPL values indicate a well-trained network that can predict 
+accurately while higher values indicate poor learning performance. Intuitively, we could say that 
+a low perplexity means that the model is less surprised by the next word. Therefore, the goal in 
+pre-training is to minimize perplexity, which means the model’s predictions align more with 
+the actual outcomes
+
+ Tokenizing a text means splitting it into tokens (words or subwords), which then are converted 
+to IDs through a look-up table mapping words in text to corresponding lists of integers.
+ Before training the LLM, the tokenizer – more precisely, its dictionary – is typically fitted to the 
+entire training dataset and then frozen. It’s important to note that tokenizers do not produce 
+arbitrary integers. Instead, they output integers within a specific range – from 0  to 
+, where 
+represents the vocabulary size of the tokenizer
+
+language models have been becoming bigger over time. That corre
+sponds to a long-term trend in machine learning that models get bigger as computing resources 
+get cheaper, enabling higher performance. In a paper from 2020 by researchers from OpenAI, 
+Kaplan and others (Scaling laws for neural language models, 2020) discussed scaling laws and the 
+choice of parameters
+

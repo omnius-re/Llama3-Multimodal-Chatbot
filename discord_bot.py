@@ -6,7 +6,7 @@ from dotenv import load_dotenv
 import requests
 
 
-from youtube_transcript_api import YouTubeTranscriptApi
+from youtube_transcript_api import YouTubeTranscriptApi, TranscriptsDisabled, NoTranscriptFound, VideoUnavailable
 import tiktoken
 
 import openai
@@ -19,8 +19,6 @@ import requests
 import shutil
 
 
-
-
 load_dotenv()
 
 intents = discord.Intents.default()
@@ -29,14 +27,10 @@ intents.message_content = True
 bot = commands.Bot(command_prefix="/", intents= intents)
 
 
-
 @bot.event
 async def on_ready():
     print(f"Bot is ready as {bot.user.name}")
 
-@bot.command(name="hello")
-async def hello(ctx):
-    await ctx.send("Hello son :)") 
 
 @bot.command(name="ask")
 async def ask(ctx, *, message):
@@ -53,7 +47,7 @@ async def ask(ctx, *, message):
         },
     ])
     print(response['message']['content'])
-    await ctx.send(response['message']['content'])
+    await ctx.send(response['message']['content']) 
 
 @bot.command(name="summarize")
 async def summarize(ctx):
@@ -77,28 +71,43 @@ async def summarize(ctx):
     await ctx.send(response['message']['content'])
 
 @bot.command(name="tldr")
-async def yt_tldr(ctx, url):
-    await ctx.send("Fetching and summarizing the YouTube video...")
+async def yt_tldr(ctx, url: str):
+    await ctx.send("Fetching transcript…")
 
-    # Validate the URL format
-    if "v=" not in url:
-        await ctx.send("Invalid YouTube URL format. Please provide a valid video URL.")
-        return
-
+    # Robustly extract the video ID
     try:
-        video_id = url.split("v=")[1].split("&")[0]  # Handle cases where additional parameters are present
-        transcript_list = YouTubeTranscriptApi.get_transcript(video_id)
-    except Exception as e:
-        await ctx.send(f"Error fetching transcript: {e}")
+        if "youtube.com/watch?v=" in url:
+            video_id = url.split("v=")[1].split("&")[0]
+        elif "youtu.be/" in url:
+            video_id = url.split("youtu.be/")[1].split("?")[0]
+        else:
+            raise ValueError("Unsupported YouTube URL format.")
+    except Exception:
+        await ctx.send("Could not parse the YouTube video ID. Please check the link.")
         return
 
-    full_transcript = " ".join([item['text'] for item in transcript_list])
+    # Initialize YouTubeTranscriptApi
+    ytt_api = YouTubeTranscriptApi()
+    try:
+        transcript = ytt_api.fetch(video_id)  # uses updated API (v1.2.0+)
+    except TranscriptsDisabled:
+        return await ctx.send("Transcripts are disabled for this video.")
+    except NoTranscriptFound:
+        return await ctx.send("No transcript found for this video.")
+    except VideoUnavailable:
+        return await ctx.send("Video is unavailable.")
+    except Exception as e:
+        return await ctx.send(f"Error fetching transcript: {e}")
 
+    # Join transcript snippets
+    full_transcript = " ".join([snippet.text for snippet in transcript])
+
+    # Token count and chunking
     encoding = tiktoken.encoding_for_model("gpt-3.5-turbo")
     tokens = encoding.encode(full_transcript)
     num_tokens = len(tokens)
+    print(f"Token count: {num_tokens}")
 
-    print(num_tokens)
     chunk_size = 7000
 
     if num_tokens > chunk_size:
@@ -107,7 +116,6 @@ async def yt_tldr(ctx, url):
 
         async def process_chunk(chunk, chunk_num):
             await ctx.send(f"Extracting summary of chunk {chunk_num} of {num_chunks}...")
-
             try:
                 response = ollama.chat(model='llama3', messages=[
                     {
@@ -118,7 +126,7 @@ async def yt_tldr(ctx, url):
                     {
                         'role': 'user',
                         'content': f'''
-                        Please provide a summary for the following chunk of the YouTube video transcript:
+                        Please provide a summary for the following chunk of the YouTube video info:
                         1. Start with a high-level title for this chunk.
                         2. Provide 6-8 bullet points summarizing the key points in this chunk.
                         3. Start with the title of the chunk and then provide the summary in bullet points instead of using "Here's the summary of the transcript".
@@ -131,13 +139,8 @@ async def yt_tldr(ctx, url):
                         ''',
                     },
                 ])
-                print(f"Response for chunk {chunk_num}: {response}")
-
                 summary = response.get('message', {}).get('content', '').strip()
-                if not summary:
-                    summary = "No summary available for this chunk."
-
-                return summary
+                return summary if summary else "No summary available for this chunk."
             except Exception as e:
                 print(f"Error processing chunk {chunk_num}: {e}")
                 return "Error generating summary."
@@ -160,121 +163,117 @@ async def yt_tldr(ctx, url):
                 {
                     'role': 'user',
                     'content': f'''
-                    Please provide a summary for the following chunk of the YouTube video transcript:
+                    Please provide a summary for the following chunk of the YouTube video info:
+                    1. Create a title for the info
+                    2. Return the response in markdown format.
+                    3. Add a divider at the end.
                     {full_transcript}
                     ''',
                 },
             ])
-            print(f"Response for full transcript: {response}")
-
             summary = response.get('message', {}).get('content', '').strip()
-            if not summary:
-                summary = "No summary available for this video."
-
-            await ctx.send(summary)
+            await ctx.send(summary if summary else "No summary available for this video.")
         except Exception as e:
             print(f"Error summarizing full transcript: {e}")
             await ctx.send("Error generating summary.")
 
-@bot.command(name="factcheck")
-async def yt_factcheck(ctx, url):
-    await ctx.send("Fetching and fact-checking the YouTube video...")
+from langchain_community.vectorstores import FAISS
+from langchain_community.embeddings import HuggingFaceEmbeddings
+from langchain.text_splitter import RecursiveCharacterTextSplitter
+from langchain.schema import Document
+from langchain_openai import ChatOpenAI
+from langchain.embeddings import HuggingFaceEmbeddings
+from langchain.prompts import ChatPromptTemplate
+from langchain_core.runnables import RunnablePassthrough
+from langchain_core.output_parsers import StrOutputParser
+from langchain_core.documents import Document
+import asyncio
 
-    # Validate the URL format
-    if "v=" not in url:
-        await ctx.send("Invalid YouTube URL format. Please provide a valid video URL.")
-        return
-    
+
+# === Load Your Vector Store with Domain Knowledge ===
+embeddings = HuggingFaceEmbeddings(model_name="sentence-transformers/all-MiniLM-L6-v2")
+db = FAISS.load_local("knowledge_base", embeddings, allow_dangerous_deserialization=True)
+retriever = db.as_retriever(search_kwargs={"k": 5})
+
+prompt = ChatPromptTemplate.from_messages([
+    ("system", "You are a helpful assistant. Use the context to answer the question. If context is insufficient, say you don't know."),
+    ("human", "Context:\n{context}\n\nQuestion:\n{question}")
+])
+
+output_parser = StrOutputParser()
+
+# === Initialize RAG QA Chain ===
+llm_model= ChatOpenAI(openai_api_key= os.getenv('api_key'),model_name="gpt-3.5-turbo")
+rag_chain = (
+    {"context": retriever,  "question": RunnablePassthrough()}
+    | prompt
+    | llm_model
+    | output_parser
+)
+
+@bot.command(name="fc")
+async def fc(ctx, url:str):
+    await ctx.send("Fetching transcript…")
+
+    # Robustly extract the video ID
     try:
-        video_id = url.split("v=")[1].split("&")[0]  # Handle cases where additional parameters are present
-        transcript_list = YouTubeTranscriptApi.get_transcript(video_id)
-    except Exception as e:
-        await ctx.send(f"Error fetching transcript: {e}")
+        if "youtube.com/watch?v=" in url:
+            video_id = url.split("v=")[1].split("&")[0]
+        elif "youtu.be/" in url:
+            video_id = url.split("youtu.be/")[1].split("?")[0]
+        else:
+            raise ValueError("Unsupported YouTube URL format.")
+    except Exception:
+        await ctx.send("Could not parse the YouTube video ID. Please check the link.")
         return
+
+    # Initialize YouTubeTranscriptApi
+    ytt_api = YouTubeTranscriptApi()
+    try:
+        transcript = ytt_api.fetch(video_id)  # uses updated API (v1.2.0+)
+    except TranscriptsDisabled:
+        return await ctx.send("Transcripts are disabled for this video.")
+    except NoTranscriptFound:
+        return await ctx.send("No transcript found for this video.")
+    except VideoUnavailable:
+        return await ctx.send("Video is unavailable.")
+    except Exception as e:
+        return await ctx.send(f"Error fetching transcript: {e}")
+
+    # === Prepare full transcript ===
+    full_transcript = " ".join([snippet.text for snippet in transcript])
     
-    full_transcript = " ".join([item['text'] for item in transcript_list])
+    # === Split transcript into chunks ===
+    splitter = RecursiveCharacterTextSplitter(chunk_size=1000, chunk_overlap=100)
+    chunks = splitter.create_documents([full_transcript])
 
-    encoding = tiktoken.encoding_for_model("gpt-3.5-turbo")
-    tokens = encoding.encode(full_transcript)
-    num_tokens = len(tokens)
+    # === Expert Agentic Style Fact Checking ===
+    async def analyze_chunk(chunk: Document, idx: int):
+        question = f"""Please fact-check the following transcript segment:
 
-    print(num_tokens)
-    chunk_size = 7000
+        {chunk.page_content}
 
-    if num_tokens > chunk_size:
-        num_chunks = (num_tokens + chunk_size - 1) // chunk_size
-        chunks = [full_transcript[i * chunk_size : (i + 1) * chunk_size] for i in range(num_chunks)]
-
-        async def process_chunk(chunk, chunk_num):
-            await ctx.send(f"Extracting fact-check of chunk {chunk_num} of {num_chunks}...")
-
-            try:
-                response = ollama.chat(model='llama3', messages=[
-                    {
-                        'role': 'user',
-                        'content': '''You are a helpful assistant for appraising documents. You provide a helpful chatbot that strictly & rigourously evaluates the information's 
-                         credibility in bullet points. Do not exceed 100 words in text generation.'''
-                    },
-                    {
-                        'role': 'user',
-                        'content': f'''
-                        Please provide a fact-check for the following chunk of the YouTube video transcript:
-                        1. Start with a high-level title for this chunk.
-                        2. Provide bullet points categorizing the key statements that are factual and the key statements that are opionated/biased/unfactual in this chunk.
-                        3. No need to use concluding remarks at the end.
-                        4. Provide a score from 1-10 about how accurate the provided information is.
-                        5. Return the response in markdown format.
-                        6. Add a divider at the end.
-
-                        Chunk:
-                        {chunk}
-                        ''',
-                    },
-                ])
-                print(f"Response for chunk {chunk_num}: {response}")
-
-                factcheck = response.get('message', {}).get('content', '').strip()
-                if not factcheck:
-                    summary = "No fact-check available for this chunk."
-
-                return factcheck
-            except Exception as e:
-                print(f"Error processing chunk {chunk_num}: {e}")
-                return "Error generating fact-check."
-
-        for i, chunk in enumerate(chunks, start=1):
-            try:
-                factcheck = await process_chunk(chunk, i)
-                await ctx.send(factcheck)
-            except Exception as e:
-                print(f"Error sending fact0check for chunk {i}: {e}")
-                await ctx.send("Error sending fact-check.")
-    else:
+        1. Identify factual claims.
+        2. Verify them using your knowledge.
+        3. Return results in markdown.
+        4. End with a confidence rating (High, Medium, Low).
+        5. Do not hallucinate or make up data."""
+        
         try:
-            response = ollama.chat(model='llama3', messages=[
-                {
-                    'role': 'user',
-                    'content': '''You are a helpful assistant for appraising documents. You provide a helpful chatbot that strictly & rigourously evaluates the information's 
-                         credibility in bullet points. Do not exceed 100 words in text generation.'''
-                },
-                {
-                    'role': 'user',
-                    'content': f'''
-                    Please provide a fact-check for the following chunk of the YouTube video transcript, evaluating the level of bias/opinions and a final score form 1-10 on its factual accuracy:
-                    {full_transcript}
-                    ''',
-                },
-            ])
-            print(f"Response for full transcript: {response}")
-
-            factcheck = response.get('message', {}).get('content', '').strip()
-            if not factcheck:
-                factcheck = "No fact-check available for this video."
-
-            await ctx.send(factcheck)
+            loop = asyncio.get_event_loop()
+            result = await loop.run_in_executor(None, rag_chain.invoke, question)
+            return f"**Chunk {idx + 1}:**\n{result}\n---"
         except Exception as e:
-            print(f"Error summarizing full transcript: {e}")
-            await ctx.send("Error generating fact-check.")
+            return f"❌ Error processing chunk {idx + 1}: {e}"
+
+    # Process and send summaries
+    await ctx.send(f"📄 Transcript split into {len(chunks)} chunks. Starting fact-checking...")
+
+    for i, chunk in enumerate(chunks):
+        summary = await analyze_chunk(chunk, i)
+        await ctx.send(summary)
+
+    await ctx.send("✅ Fact-checking completed.")
 
 import vertexai
 PROJECT_ID = os.getenv('PROJECT_ID')
@@ -357,10 +356,6 @@ async def make_image(ctx, *, message):
     except Exception as e:
         print(f"Error: {e}")
         await ctx.send("An error occurred while generating the image.")
-
-    
-
-    
 
 
 
