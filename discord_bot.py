@@ -190,7 +190,7 @@ from langchain_core.documents import Document
 import asyncio
 
 
-# === Load Your Vector Store with Domain Knowledge ===
+# Load Vector Store with Domain Knowledge 
 embeddings = HuggingFaceEmbeddings(model_name="sentence-transformers/all-MiniLM-L6-v2")
 db = FAISS.load_local("knowledge_base", embeddings, allow_dangerous_deserialization=True)
 retriever = db.as_retriever(search_kwargs={"k": 5})
@@ -202,7 +202,7 @@ prompt = ChatPromptTemplate.from_messages([
 
 output_parser = StrOutputParser()
 
-# === Initialize RAG QA Chain ===
+# Initialize RAG QA Chain 
 llm_model= ChatOpenAI(openai_api_key= os.getenv('api_key'),model_name="gpt-3.5-turbo")
 rag_chain = (
     {"context": retriever,  "question": RunnablePassthrough()}
@@ -240,14 +240,14 @@ async def fc(ctx, url:str):
     except Exception as e:
         return await ctx.send(f"Error fetching transcript: {e}")
 
-    # === Prepare full transcript ===
+    # Prepare full transcript 
     full_transcript = " ".join([snippet.text for snippet in transcript])
     
-    # === Split transcript into chunks ===
+    # Split transcript into chunks
     splitter = RecursiveCharacterTextSplitter(chunk_size=1000, chunk_overlap=100)
     chunks = splitter.create_documents([full_transcript])
 
-    # === Expert Agentic Style Fact Checking ===
+    # Expert Agentic Style Fact Checking
     async def analyze_chunk(chunk: Document, idx: int):
         question = f"""Please fact-check the following transcript segment:
 
