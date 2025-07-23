@@ -196,13 +196,13 @@ db = FAISS.load_local("knowledge_base", embeddings, allow_dangerous_deserializat
 retriever = db.as_retriever(search_kwargs={"k": 5})
 
 prompt = ChatPromptTemplate.from_messages([
-    ("system", "You are a helpful assistant. Use the context to answer the question. If context is insufficient, say you don't know."),
+    ("system", "You are a helpful assistant. Use the context to answer the question. If context is insufficient, specify & use your existing knowledge to answer the question instead."),
     ("human", "Context:\n{context}\n\nQuestion:\n{question}")
 ])
 
 output_parser = StrOutputParser()
 
-# Initialize RAG QA Chain 
+# Initialize RAG LCEL Chain 
 llm_model= ChatOpenAI(openai_api_key= os.getenv('api_key'),model_name="gpt-3.5-turbo")
 rag_chain = (
     {"context": retriever,  "question": RunnablePassthrough()}
@@ -249,7 +249,7 @@ async def fc(ctx, url:str):
 
     # Expert Agentic Style Fact Checking
     async def analyze_chunk(chunk: Document, idx: int):
-        question = f"""Please fact-check the following transcript segment:
+        question = f"""Please fact-check the following transcript segment as an expert appraiser:
 
         {chunk.page_content}
 
@@ -260,8 +260,8 @@ async def fc(ctx, url:str):
         5. Do not hallucinate or make up data."""
         
         try:
-            loop = asyncio.get_event_loop()
-            result = await loop.run_in_executor(None, rag_chain.invoke, question)
+            loop = asyncio.get_event_loop() #asynchronously loops through an event 
+            result = await loop.run_in_executor(None, rag_chain.invoke, question) #loops through rag chain with each chunk of text
             return f"**Chunk {idx + 1}:**\n{result}\n---"
         except Exception as e:
             return f"❌ Error processing chunk {idx + 1}: {e}"
